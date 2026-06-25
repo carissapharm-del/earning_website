@@ -19,9 +19,9 @@ def home():
 
 @app.route('/complete-task', methods=['POST'])
 def complete_task():
-    # Reward user 50 Naira for a task click
-    user_data["balance"] += 50
-    flash("🎉 Task completed! You earned ₦50.", "success")
+    # Reward user 5 Naira for a task click
+    user_data["balance"] += 5
+    flash("🎉 Task completed! You earned ₦5.", "success")
     return redirect(url_for('home'))
 
 @app.route('/withdraw', methods=['POST'])
