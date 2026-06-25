@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "super_secret_key_for_session")
 
-DATABASE = 'database.db'
+DATABASE = 'os.path.join(os.path.abspath(os.path.dirname(__file__)), 'database.db')
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
@@ -52,7 +52,7 @@ def register():
             flash("❌ All fields are required.", "danger")
             return redirect(url_for('register'))
             
-        hashed_password = generate_password_hash(password)
+        hashed_password = generate_password_hash(password, method='scrypt')
         
         try:
             conn = get_db_connection()
