@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - MegaEarnTask</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .card { border: none; border-radius: 15px; }
+    </style>
+</head>
+<body class="d-flex align-items-center justify-content-center">
+    <div class="container" style="max-width: 430px;">
+        <div class="card shadow p-4">
+            <h3 class="text-center fw-bold text-primary mb-2">MegaEarnTask</h3>
+            <p class="text-center text-muted small mb-4">Create an account to start earning</p>
+            
+            <!-- System Flash Messages for Duplicate Usernames -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} text-center py-2 small fw-bold mb-3">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form action="/register" method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Choose Username</label>
+                    <input type="text" name="username" class="form-control" placeholder="e.g., kenechi12" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 fw-bold py-2 mb-2">Sign Up</button>
+            </form>
+            <p class="text-center mt-3 small mb-0">Already have an account? <a href="/login" class="text-decoration-none fw-bold">Login here</a></p>
+        </div>
+    </div>
+</body>
+</html>
