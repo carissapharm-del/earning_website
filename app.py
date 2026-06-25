@@ -6,7 +6,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "super_secret_key_for_session")
 
-DATABASE = 'os.path.join(os.path.abspath(os.path.dirname(__file__)), 'database.db')
+# Secure absolute path for Render's environment
+DATABASE = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'database.db')
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
@@ -27,12 +28,11 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Initialize the database file when the app starts
+# Initialize database on startup
 init_db()
 
 @app.route('/')
 def home():
-    # If user is logged in, show their data. Otherwise, send them to login.
     if 'user_id' not in session:
         return redirect(url_for('login'))
         
@@ -62,7 +62,6 @@ def register():
             flash("🎉 Account created successfully! Please log in.", "success")
             return redirect(url_for('login'))
         except sqlite3.IntegrityError:
-            # This triggers automatically if the username UNIQUE rule is broken!
             flash("❌ Username already used. Please choose another one.", "danger")
             return redirect(url_for('register'))
             
@@ -98,7 +97,6 @@ def complete_task():
     if 'user_id' not in session:
         return redirect(url_for('login'))
         
-    # Update balance in the database for this specific logged-in user
     conn = get_db_connection()
     conn.execute('UPDATE users SET balance = balance + 5 WHERE id = ?', (session['user_id'],))
     conn.commit()
@@ -125,13 +123,29 @@ def withdraw():
         flash("❌ Please enter a valid 10-digit account number.", "danger")
         conn.close()
     else:
-        # Reset user's balance to 0 in the database
         conn.execute('UPDATE users SET balance = 0 WHERE id = ?', (session['user_id'],))
         conn.commit()
         conn.close()
         flash(f"✅ Withdrawal request of ₦{user['balance']} sent successfully to your {bank} account!", "success")
         
     return redirect(url_for('home'))
+
+# Master Control Panel Route
+@app.route('/admin')
+def admin_dashboard():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    # Security checkpoint: Only allow 'emmanuel'
+    if session['username'] != 'emmanuel':
+        flash("⛔ Access Denied: Admins only.", "danger")
+        return redirect(url_for('home'))
+        
+    conn = get_db_connection()
+    users = conn.execute('SELECT id, username, balance, referrals FROM users').fetchall()
+    conn.close()
+    
+    return render_template('admin.html', users=users)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
