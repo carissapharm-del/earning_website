@@ -7,8 +7,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "super_secret_key_for_session")
 
 # Secure absolute path for Render's environment
-DATABASE = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'database.db')
-
+DATABASE = '/tmp/database.db'
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
