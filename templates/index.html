@@ -3,75 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MegaEarnTask - Dashboard</title>
+    <title>Dashboard - MegaEarnTask</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .card-custom { border: none; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .balance-box { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; }
+        .navbar-brand { font-weight: 800; letter-spacing: 0.5px; }
+        .card-custom { border: none; border-radius: 16px; background: #ffffff; }
+        .balance-box { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; }
     </style>
 </head>
 <body>
 
-<div class="container py-5">
-    <div class="text-center mb-5">
-        <h1 class="fw-bold text-primary">💰 MegaEarnTask</h1>
-        <p class="text-muted">Earn quick rewards by completing simple micro-tasks</p>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand text-primary" href="#">🦁 MegaEarnTask</a>
+            <div class="d-flex align-items-center">
+                <span class="text-light me-3 small d-none d-sm-inline">Welcome, <strong class="text-warning">{{ user['username'] }}</strong></span>
+                <a href="/logout" class="btn btn-outline-danger btn-sm fw-bold">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Body -->
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h1 class="fw-bold text-primary">Dashboard Hub</h1>
+            <p class="text-muted">Perform basic video tasks daily and claim your guaranteed cashouts.</p>
+        </div>
+
+        <!-- System Alert Notifications -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} text-center py-2 small fw-bold mb-4 animate__animated animate__fadeIn">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row g-4">
+            <!-- Left Side: Financial Wallet Module -->
+            <div class="col-md-6">
+                <div class="card card-custom balance-box p-4 text-center h-100 shadow-sm">
+                    <h4 class="opacity-75">Your Main Balance</h4>
+                    <h1 class="display-4 fw-bold my-2">₦{{ user['balance'] }}</h1>
+                    <p class="mb-0 opacity-75">Total Referrals: <span class="fw-bold">{{ user['referrals'] }}</span></p>
+                </div>
+            </div>
+
+            <!-- Right Side: Secure Premium Video Task -->
+            <div class="col-md-6">
+                <div class="card card-custom p-4 h-100 shadow-sm">
+                    <h4 class="fw-bold text-dark mb-3">🎯 Premium Video Task</h4>
+                    <p class="text-muted small">Click the button below, watch the sponsored video clip for full 30 seconds, then claim your reward.</p>
+                    
+                    <!-- Timer Tracker -->
+                    <div id="timer-status" class="alert alert-info text-center py-2 fw-bold d-none">
+                        ⏳ Watching Ad: <span id="countdown">30</span> seconds remaining...
+                    </div>
+
+                    <!-- STEP 1: Watch Video Button -->
+                    <a href="https://www.effectivecpmnetwork.com/tssnnyr4?key=b5a58176798e703db438d701e69fb46a" target="_blank" id="start-task-btn" class="btn btn-primary w-100 btn-lg fw-bold py-3 mb-2" onclick="startAdTimer()">
+                        🎬 Watch Video Ad (Earn ₦5)
+                    </a>
+
+                    <!-- STEP 2: Protected Claim Form (Hidden by Default) -->
+                    <form action="/complete-task" method="POST" id="claim-reward-form" class="d-none">
+                        <button type="submit" class="btn btn-success w-100 btn-lg fw-bold py-3 animate__animated animate__bounceIn">
+                            💰 Claim Reward Now
+                        </button>
+                    </form>
+                    
+                    <small class="text-danger text-center d-block fw-semibold mt-2" id="warning-text">
+                        ⚠️ Warning: Closing or leaving the ad early will cancel your reward!
+                    </small>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Withdrawal Processing Area -->
+            <div class="col-12">
+                <div class="card card-custom p-4 shadow-sm">
+                    <h4 class="fw-bold text-dark mb-4">🏦 Cashout to Local Nigerian Bank</h4>
+                    <form action="/withdraw" method="POST" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Select Target Bank</label>
+                            <select name="bank" class="form-select" required>
+                                <option value="OPay">OPay</option>
+                                <option value="PalmPay">PalmPay</option>
+                                <option value="Moniepoint">Moniepoint</option>
+                                <option value="Kuda Bank">Kuda Bank</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold">10-Digit Account Number</label>
+                            <input type="text" name="account_number" class="form-control" placeholder="0123456789" maxlength="10" required>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-dark w-100 fw-bold py-2">Submit Cashout</button>
+                        </div>
+                    </form>
+                    <div class="form-text text-muted mt-2">
+                        💡 Minimum payout milestone limit is set strictly at <strong>₦2,000</strong>.
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }} text-center" role="alert">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+    <!-- Timer Countdown Controller Script -->
+    <script>
+    let countdownTime = 30;
+    let timerInterval;
 
-    <div class="row g-4">
-        <div class="col-md-6">
-            <div class="card card-custom balance-box p-4 text-center">
-                <h4 class="opacity-75">Your Wallet Balance</h4>
-                <h1 class="display-4 fw-bold my-2">₦{{ user['balance'] }}</h1>
-                <p class="mb-0">Referrals: <span class="fw-bold">{{ user['referrals'] }}</span></p>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card card-custom p-4 h-100">
-                <h4 class="fw-bold text-dark mb-3">🎯 Available Tasks</h4>
-                <p class="text-muted">Click the button below to watch a sponsored clip or visit an ad partner to instantly boost your balance.</p>
-                <form action="/complete-task" method="POST" class="mt-auto">
-                    <button type="submit" class="btn btn-success w-100 btn-lg fw-bold py-3">⚡ Click to Earn ₦50</button>
-                </form>
-            </div>
-        </div>
-
-        <div class="col-12">
-            <div class="card card-custom p-4">
-                <h4 class="fw-bold text-dark mb-4">💳 Cashout directly to Local Bank</h4>
-                <form action="/withdraw" method="POST" class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Select Bank</label>
-                        <select name="bank" class="form-select">
-                            <option value="OPay">OPay</option>
-                            <option value="PalmPay">PalmPay</option>
-                            <option value="Moniepoint">Moniepoint</option>
-                            <option value="Access Bank">Access Bank</option>
-                        </select>
-                    </div>
-                    <div class="col-md-5">
-                        <label class="form-label fw-semibold">Account Number</label>
-                        <input type="number" name="account_number" class="form-control" placeholder="e.g., 8123456789" required>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2">Submit Request</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
+    function startAdTimer() {
+        document.getElementById('timer-status').classList.remove('d-none');
+        document.getElementById('start-task-btn').classList.add('disabled');
+        document.getElementById('start-task-btn').innerText = "❌ Task In Progress...";
+        
+        timerInterval = setInterval(function() {
+            countdownTime--;
+            document.getElementById('countdown').innerText = countdownTime;
+            
+            if (countdownTime <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timer-status').classList.add('d-none');
+                document.getElementById('warning-text').className = "text-success text-center d-block fw-bold mt-2";
+                document.getElementById('warning-text').innerText = "✅ Video verified! Click claim button below.";
+                document.getElementById('claim-reward-form').classList.remove('d-none');
+            }
+        }, 1000);
+    }
+    </script>
 </body>
-    <script src="https://pl29900328.effectivecpmnetwork.com/3f/7e/ae/3f7eae0680a8e103e7c037a8f95b7542.js"></script>
 </html>
